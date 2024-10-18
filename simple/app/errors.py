@@ -1,0 +1,6 @@
+class CustomDbError(Exception):
+    ...
+
+
+class CustomParserError(Exception):
+    ...
