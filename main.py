@@ -29,6 +29,8 @@ def parse_wikipedia_page(url: str, max_depth: int = 6) -> None:
         for next_url in urls:
             queue.append((next_url, current_depth + 1))
 
+        print(123)
+        print(321)
 
 def main():
     url = input("Enter wiki URL for parsing: ")
