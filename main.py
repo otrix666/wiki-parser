@@ -8,13 +8,14 @@ from parser import get_url_content
 from utils import create_str_list_uploaded_wiki_url, fetch_ulrs_from_html_content
 
 
-def parse_wikipedia_page(db: Database, url: str, max_depth: int = 6) -> None:
+def parse_wikipedia_page(db: Database, url: str, max_depth: int = 3) -> None:
     already_uploaded_urls = create_str_list_uploaded_wiki_url(db.get_urls())
 
     queue = deque([(url, 1)])
 
     while queue:
         current_url, current_depth = queue.popleft()
+        print(current_depth)
 
         if current_depth > max_depth:
             continue
