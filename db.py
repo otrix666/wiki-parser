@@ -2,32 +2,36 @@ import sqlite3
 
 
 class Database:
-    def __init__(self):
-        self.connection = sqlite3.connect("parser.db")
-        self.cursor = self.connection.cursor()
+    def __init__(self, connection: sqlite3.Connection = None):
+        self.connection = connection
 
-    def _commiter(self):
-        self.connection.commit()
+    def create_table(self) -> None:
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute("""CREATE TABLE IF NOT EXISTS urls(
+                                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                url TEXT,
+                                depth INTEGER
+                                )""")
 
-    def _closer(self):
-        self.connection.close()
+            self.connection.commit()
+        finally:
+            cursor.close()
 
-    def create_table(self):
-        self.cursor.execute("""CREATE TABLE IF NOT EXISTS urls(
-                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            url TEXT,
-                            depth INTEGER
-                            )""")
-        self._commiter()
+    def add_url(self, url: str, depth: int) -> None:
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(
+                "INSERT INTO urls(url, depth) VALUES (?, ?)", (url, depth, ))
 
-    def add_url(self, url: str, depth: int):
-        self.cursor.execute(
-            "INSERT INTO urls(url, depth) VALUES (?, ?)", (url, depth, ))
-        self._commiter()
+            self.connection.commit()
+        finally:
+            cursor.close()
 
-    def get_url(self, url: str) -> tuple | None:
-        self.cursor.execute("select url from urls where url = ?", (url, ))
-        return self.cursor.fetchone()
-
-
-db = Database()
+    def get_urls(self) -> list[tuple]:
+        try:
+            cursor = self.connection.cursor()
+            result = cursor.execute("select url from urls")
+            return result.fetchall()
+        finally:
+            cursor.close()
