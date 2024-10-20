@@ -30,6 +30,7 @@ def parse_wikipedia_page(db: Database, url: str, max_depth: int = 6) -> None:
             last_depth = current_depth
             try:
                 db.add_urls(insert_values=insert_values)
+                insert_values.clear()
             except CustomDbError as e:
                 print(f"{e}")
 
