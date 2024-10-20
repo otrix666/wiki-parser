@@ -1,4 +1,4 @@
-import time
+import uuid
 import sqlite3
 
 
@@ -39,7 +39,7 @@ def parse_wikipedia_page(db: Database, url: str, max_depth: int = 6) -> None:
             continue
 
         already_uploaded_urls.add(current_url)
-        insert_values.append((current_url, current_depth))
+        insert_values.add((current_url, current_depth))
 
         urls = fetch_ulrs_from_html_content(html_content=html_content)
 
@@ -51,10 +51,14 @@ def main():
     try:
         url = input("Enter wiki URL for parsing: ")
 
-        connection = sqlite3.connect("parser.db")
+        connection = sqlite3.connect(f"{uuid.uuid4()}.db")
         db = Database(connection=connection)
+        db.create_table()
 
         parse_wikipedia_page(db=db, url=url)
+
+    except CustomDbError as e:
+        print(f"{e}")
 
     except KeyboardInterrupt:
         print("wiki-cli stoped")
