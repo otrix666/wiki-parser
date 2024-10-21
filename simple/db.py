@@ -1,6 +1,6 @@
 import sqlite3
 
-from errors import CustomDbError
+from simple.errors import CustomDbError
 
 
 class Database:
