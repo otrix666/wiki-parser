@@ -1,6 +1,6 @@
 import uuid
+import  logging
 import sqlite3
-
 
 from collections import deque
 
@@ -9,6 +9,9 @@ from parser import get_url_content
 from errors import CustomDbError
 from utils import fetch_urls_from_html_content
 
+from setup_logging import  setup_logging
+
+logger = logging.getLogger(__name__)
 
 def parse_wikipedia_page(db: Database, url: str, max_depth: int = 3) -> None:
     insert_values = set()
@@ -32,7 +35,7 @@ def parse_wikipedia_page(db: Database, url: str, max_depth: int = 3) -> None:
                 db.add_urls(insert_values=insert_values)
                 insert_values.clear()
             except CustomDbError as e:
-                print(f"{e}")
+                logger.error(e)
 
         html_content = get_url_content(url=current_url)
         if not html_content:
@@ -42,12 +45,14 @@ def parse_wikipedia_page(db: Database, url: str, max_depth: int = 3) -> None:
         insert_values.add((current_url, current_depth))
 
         urls = fetch_urls_from_html_content(html_content=html_content)
+        logger.info(urls)
 
         for next_url in urls:
             queue.append((next_url, current_depth + 1))
 
 
 def main():
+    setup_logging()
     connection = sqlite3.connect(f"{uuid.uuid4()}.db")
 
     try:
@@ -59,10 +64,10 @@ def main():
         parse_wikipedia_page(db=db, url=url)
 
     except CustomDbError as e:
-        print(f"{e}")
+        logger.error(e)
 
     except KeyboardInterrupt:
-        print("wiki-cli stopped")
+        logging.info("wiki-cli stopped")
 
     finally:
         connection.close()
