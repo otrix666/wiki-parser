@@ -22,7 +22,7 @@ class Database:
         finally:
             cursor.close()
 
-    def add_urls(self, insert_values: list[tuple]) -> None:
+    def add_urls(self, insert_values: set[tuple]) -> None:
         cursor = self.connection.cursor()
         try:
             query = "INSERT INTO urls(url, depth) VALUES (?, ?)"
@@ -35,7 +35,7 @@ class Database:
         finally:
             cursor.close()
 
-    def get_urls(self) -> set[tuple]:
+    def get_urls(self) -> set[str]:
         cursor = self.connection.cursor()
         try:
             result = cursor.execute("select url from urls").fetchall()

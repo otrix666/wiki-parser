@@ -7,10 +7,10 @@ from collections import deque
 from db import Database
 from parser import get_url_content
 from errors import CustomDbError
-from utils import fetch_ulrs_from_html_content
+from utils import fetch_urls_from_html_content
 
 
-def parse_wikipedia_page(db: Database, url: str, max_depth: int = 6) -> None:
+def parse_wikipedia_page(db: Database, url: str, max_depth: int = 3) -> None:
     insert_values = set()
     already_uploaded_urls = db.get_urls()
 
@@ -41,17 +41,18 @@ def parse_wikipedia_page(db: Database, url: str, max_depth: int = 6) -> None:
         already_uploaded_urls.add(current_url)
         insert_values.add((current_url, current_depth))
 
-        urls = fetch_ulrs_from_html_content(html_content=html_content)
+        urls = fetch_urls_from_html_content(html_content=html_content)
 
         for next_url in urls:
             queue.append((next_url, current_depth + 1))
 
 
 def main():
+    connection = sqlite3.connect(f"{uuid.uuid4()}.db")
+
     try:
         url = input("Enter wiki URL for parsing: ")
 
-        connection = sqlite3.connect(f"{uuid.uuid4()}.db")
         db = Database(connection=connection)
         db.create_table()
 
@@ -61,7 +62,7 @@ def main():
         print(f"{e}")
 
     except KeyboardInterrupt:
-        print("wiki-cli stoped")
+        print("wiki-cli stopped")
 
     finally:
         connection.close()
