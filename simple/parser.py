@@ -1,10 +1,12 @@
-import urllib.request
+from urllib.request import urlopen
+
 
 
 def get_url_content(url: str) -> str | None:
     try:
-        response = urllib.request.urlopen(url=url)
+        response = urlopen(url=url)
         content = response.read()
         return content.decode("utf-8")
     except:
-        return None
+        return  None
+

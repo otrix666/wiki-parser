@@ -1,0 +1,3 @@
+class CustomDbError(Exception):
+    ...
+
