@@ -1,3 +1,0 @@
-class CustomDbError(Exception):
-    ...
-

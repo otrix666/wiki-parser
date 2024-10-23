@@ -1,6 +1,6 @@
 import sqlite3
 
-from simple.errors import CustomDbError
+from simple.app.errors import CustomDbError
 
 
 class Database:
@@ -22,7 +22,7 @@ class Database:
         finally:
             cursor.close()
 
-    def add_urls(self, insert_values: set[tuple]) -> None:
+    def add_urls(self, insert_values: set[tuple[str, int]]) -> None:
         cursor = self.connection.cursor()
         try:
             query = "INSERT OR REPLACE INTO urls(url, depth) VALUES (?, ?)"
