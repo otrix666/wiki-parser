@@ -22,11 +22,13 @@ class Database:
         finally:
             cursor.close()
 
-    def add_urls(self, insert_values: set[tuple[str, int]]) -> None:
+    def add_urls(self, urls: set[str], depth: int) -> None:
         cursor = self.connection.cursor()
         try:
+            insert_data = [(url, depth) for url in urls]
+
             query = "INSERT OR REPLACE INTO urls(url, depth) VALUES (?, ?)"
-            cursor.executemany(query, insert_values)
+            cursor.executemany(query, insert_data)
 
             self.connection.commit()
         except Exception as e:

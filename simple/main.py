@@ -10,7 +10,7 @@ from simple.app.db import Database
 from simple.app.errors import CustomDbError
 from simple.app.parser import WikiClient
 
-from simple.app.utils import fetch_urls_from_html_content
+# from simple.app.utils import fetch_urls_from_html_content
 from simple.app.interactor import  parse_wikipedia_page
 
 
@@ -38,7 +38,6 @@ def main():
 
         parse_wikipedia_page(logger=logger,
                              db=db,
-                             urls_fetcher=fetch_urls_from_html_content,
                              wiki_client=wiki_client,
                              url=args.url,
                              max_depth=args.max_depth,

@@ -1,53 +1,55 @@
+import  re
 import  logging
-from typing import  TypeVar, Callable, Iterable
-from collections import deque
 
 from simple.app.db import  Database
 from simple.app.errors import CustomDbError, CustomParserError
 from simple.app.parser import WikiClient
 
 
-fetch_util = TypeVar("fetch_util", bound=Callable[..., Iterable[str]])
-
 def parse_wikipedia_page(logger: logging.Logger,
                          db: Database,
                          wiki_client: WikiClient,
-                         urls_fetcher: fetch_util,
                          url: str,
-                         max_depth: int = 3
+                         current_depth: int = 1,
+                         max_depth: int = 3,
+                         insert_urls: dict[int, set[str]] = None
 ) -> None:
-    insert_values = set()
-    already_uploaded_urls = set()
+    if current_depth > max_depth + 1:
+        return
 
-    last_depth = 0
-    queue = deque([(url, 1)])
+    is_new_depth = False
 
-    while queue:
-        current_url, current_depth = queue.popleft()
+    if not insert_urls:
+        insert_urls = {}
 
-        if current_depth > max_depth:
-            return
+    if current_depth not in insert_urls:
+        is_new_depth = True
+        insert_urls[current_depth] = set()
 
-        insert_values.add((current_url, current_depth))
+    insert_urls[current_depth].add(url)
 
-        if current_depth > last_depth:
-            last_depth = current_depth
-            try:
-                db.add_urls(insert_values=insert_values)
-                logger.info(f"added links: {insert_values} depth {current_depth}")
-                insert_values.clear()
-            except CustomDbError:
-                logger.error(f"db error")
-
+    if is_new_depth and current_depth != 1:
+        prev_depth = current_depth - 1
+        values = insert_urls[prev_depth]
         try:
-            html_content  = wiki_client.get_url_content(url=current_url)
-        except CustomParserError:
-            logging.error("parser error")
-            continue
+            db.add_urls(urls=values, depth=prev_depth)
+        except CustomDbError:
+            return logger.error("db error")
 
-        urls = urls_fetcher(html_content=html_content)
-        already_uploaded_urls.add(current_url)
-        logger.info(urls)
+    try:
+        html_content = wiki_client.get_url_content(url=url)
+    except CustomParserError:
+        return logger.error("parser error")
 
-        for next_url in urls:
-            queue.append((next_url, current_depth + 1))
+    urls = re.findall(r'(https?://[^\s">]*wikipedia\.org[^\s">]*)', html_content)
+
+    for next_url in urls:
+        parse_wikipedia_page(logger=logger,
+                             db=db,
+                             wiki_client=wiki_client,
+                             url=next_url,
+                             current_depth=current_depth + 1,
+                             max_depth=max_depth,
+                             insert_urls=insert_urls)
+
+
