@@ -65,4 +65,3 @@ venv.bak/
 .idea/
 .env
 cache/
-pg_data
