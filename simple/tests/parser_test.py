@@ -4,8 +4,6 @@ from unittest.mock import MagicMock
 from simple.app.parser import WikiClient
 
 
-# from simple.parser import get_url_content
-
 class TestParser(unittest.TestCase):
     def setUp(self):
         self.mock_client = MagicMock()
@@ -25,9 +23,6 @@ class TestParser(unittest.TestCase):
         self.mock_client.assert_called_once_with("https://example.com")
         mock_response.read.assert_called_once()
 
-
-if __name__ == "__main__":
-    unittest.main()
 
 if __name__ == "__main__":
     unittest.main()
