@@ -8,5 +8,7 @@ def url_finder(content: str) -> set[str]:
     url_pattern = re.compile(r'^/wiki/[^\s%]+$')
     soup = BeautifulSoup(content, "lxml")
     for url in soup.find_all('a', href=url_pattern):
-        urls.add(url.get('href'))
+        urls.add("https://en.wikipedia.org" + url.get('href'))
+    print(urls)
+    
     return urls

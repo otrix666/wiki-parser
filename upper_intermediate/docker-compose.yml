@@ -1,0 +1,25 @@
+services:
+  pg:
+    image: postgres:alpine
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+        - ./pg_data:/var/lib/postgresql/data
+  redis:
+    image: redis:alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    environment:
+      REDIS_DATABASE: ${REDIS_DB}
+    volumes:
+      - ./cache:/data
+
+
+
+
