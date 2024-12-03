@@ -7,8 +7,9 @@ from logging import Logger
 
 from upper_intermediate.app.db import Database
 from upper_intermediate.app.errors import (
-    CustomHTTPClientError,
-    CustomDbError
+    HttpError,
+    DbError,
+    EncodeError
 )
 from upper_intermediate.app.http_cli import HttpClient
 from upper_intermediate.app.utils import url_finder
@@ -28,7 +29,7 @@ def parse_wiki_page(
     try:
         future.result()
         logger.info(f"added urls to pg: {urls} {current_depth}")
-    except CustomDbError as e:
+    except DbError as e:
         return logger.error(f"db error: {e}")
 
     if current_depth >= max_depth:
@@ -41,8 +42,10 @@ def parse_wiki_page(
     for future in done_iter:
         try:
             html_contents.add(future.result())
-        except CustomHTTPClientError as e:
-            logger.warning(f"http client error: {e}")
+        except HttpError as e:
+            logger.warning(f"http error: {e}")
+        except EncodeError as e:
+            logger.warning(f"encode error: {e}")
         except Exception as e:
             logger.warning(f"Unknown error while parsing: {e}")
 
