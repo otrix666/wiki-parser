@@ -1,48 +1,50 @@
-from psycopg import Connection
+from psycopg_pool import ConnectionPool
 
-from intermediate.app.errors import CustomDbError
+from upper_intermediate.app.errors import CustomDbError
 
 
 class Database:
-    def __init__(self, connection: Connection):
-        self.connection = connection
+    def __init__(self, pool: ConnectionPool):
+        self.pool = pool
 
     def create_table(self) -> None:
-        cursor = self.connection.cursor()
         try:
-            cursor.execute("""CREATE TABLE IF NOT EXISTS urls(
-                                id SERIAL PRIMARY KEY,
-                                url VARCHAR(256) UNIQUE,
-                                depth INTEGER
-                                )""")
-
-            self.connection.commit()
+            with self.pool.connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("""CREATE TABLE IF NOT EXISTS urls(
+                                    id SERIAL PRIMARY KEY,
+                                    url VARCHAR(256) UNIQUE,
+                                    depth INTEGER
+                                    )""")
+                conn.commit()
         except Exception as e:
-            raise CustomDbError(f"create table error: {e}") from e
-        finally:
-            cursor.close()
+            raise CustomDbError("error while creating table", e)
 
     def clear_urls(self):
-        cursor = self.connection.cursor()
         try:
-            cursor.execute("DELETE FROM urls")
+            with self.pool.connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("DELETE FROM urls")
 
-            self.connection.commit()
+                conn.commit()
         except Exception as e:
-            raise CustomDbError(f"clear urls error: {e}") from e
-        finally:
-            cursor.close()
+            raise CustomDbError("error while clearing urls", e)
 
     def add_urls(self, urls: set[str], depth: int) -> None:
-        cursor = self.connection.cursor()
-
         try:
-            insert_data = [(url, depth) for url in urls]
-            cursor.executemany("INSERT INTO urls(url, depth) VALUES (%s, %s)", insert_data)
-
-            self.connection.commit()
+            with self.pool.connection() as conn:
+                with conn.cursor() as cursor:
+                    insert_data = [(url, depth) for url in urls]
+                    cursor.executemany("INSERT INTO urls(url, depth) VALUES (%s, %s)", insert_data)
+                conn.commit()
         except Exception as e:
-            raise CustomDbError(f"add urls error: {e} {urls}") from e
+            raise CustomDbError("error while adding urls", e)
 
-        finally:
-            cursor.close()
+    def get_urls(self, ) -> set[str]:
+        try:
+            with self.pool.connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("SELECT * FROM urls")
+                    return {data[1] for data in cursor.fetchall()}
+        except Exception as e:
+            raise CustomDbError("error while getting urls", e)

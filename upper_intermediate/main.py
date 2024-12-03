@@ -1,18 +1,21 @@
 import argparse
 import logging
+import time
 
-import psycopg
 import requests
-from redis import Redis
+from psycopg_pool import ConnectionPool
+
+from concurrent.futures import (
+    ThreadPoolExecutor,
+    ProcessPoolExecutor,
+)
 
 from upper_intermediate.app.application import parse_wiki_page
 from upper_intermediate.app.db import Database
 from upper_intermediate.app.errors import (
-    CustomDbError,
-    CustomRedisError
+    CustomDbError
 )
 from upper_intermediate.app.http_cli import HttpClient
-from upper_intermediate.app.redis_cli import RedisClient
 from upper_intermediate.config import Config
 
 
@@ -27,46 +30,47 @@ def main():
 
     config = Config()
 
-    pg_conn = psycopg.connect(dbname=config.pg.pg_db,
-                              user=config.pg.pg_user,
-                              host=config.pg.pg_host,
-                              port=config.pg.pg_port,
-                              password=config.pg.pg_password)
+    db_url = f"postgresql://{config.pg.user}:{config.pg.password}@{config.pg.host}:{config.pg.port}/{config.pg.db}"
+    pool = ConnectionPool(db_url, max_size=10)
+
+    thread_pool = ThreadPoolExecutor(max_workers=8)
+    process_pool = ProcessPoolExecutor(max_workers=4)
+
     try:
         parser = argparse.ArgumentParser(description="Argument for wiki parser")
         parser.add_argument("url", type=str, help="enter wiki url for parsing")
         parser.add_argument("max_depth", type=int, help="enter max depth for parsing")
         args = parser.parse_args()
 
-        db = Database(connection=pg_conn)
+        db = Database(pool=pool)
         db.create_table()
         db.clear_urls()
 
-        redis_conn = Redis(
-            host=config.redis.redis_host,
-            port=config.redis.redis_port,
-            db=config.redis.redis_db,
-        )
-        redis_cli = RedisClient(connection=redis_conn)
-        redis_cli.clear_urls()
-
         http_cli = HttpClient(client=requests.get)
 
-        parse_wiki_page(logger=logger, db=db, redis_cli=redis_cli, http_cli=http_cli, urls={args.url},
+        parse_wiki_page(logger=logger,
+                        db=db,
+                        thread_pool=thread_pool,
+                        process_pool=process_pool,
+                        http_cli=http_cli,
+                        urls={args.url},
                         max_depth=args.max_depth)
 
     except CustomDbError:
         logger.error(f"db error")
 
-    except CustomRedisError:
-        logger.error(f"redis error")
-
     except KeyboardInterrupt:
         logger.info("wiki-cli stopped")
 
     finally:
-        pg_conn.close()
+        pool.close()
+        thread_pool.shutdown(wait=False, cancel_futures=True)
+        process_pool.shutdown(wait=False, cancel_futures=True)
 
 
 if __name__ == "__main__":
+    start_time = time.time()
     main()
+    end_time = time.time()
+    work_time = round(end_time - start_time, 2)
+    print(f"Work time: {work_time}")
