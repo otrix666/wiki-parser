@@ -13,14 +13,14 @@ def parse_wikipedia_page(logger: logging.Logger,
                          max_depth: int,
                          current_depth: int = 1
                          ) -> None:
-    if current_depth > max_depth:
-        return
-
     try:
         db.add_urls(urls=urls, depth=current_depth)
         logger.info(f"added urls {urls}")
     except CustomDbError:
         return logger.error("db error")
+
+    if current_depth >= max_depth:
+        return
 
     next_urls = set()
 

@@ -20,14 +20,14 @@ def parse_wiki_page(
         max_depth: int,
         current_depth: int = 1
 ) -> None:
-    if current_depth > max_depth:
-        return
-
     try:
         db.add_urls(urls=urls, depth=current_depth)
         logger.info(f"added urls to pg: {urls}")
     except CustomDbError as e:
         return logger.error(f"db error: {e}")
+
+    if current_depth >= max_depth:
+        return
 
     try:
         redis_cli.add_urls(urls)

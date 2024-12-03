@@ -1,3 +1,4 @@
+import time
 import argparse
 import logging
 
@@ -69,4 +70,8 @@ def main():
 
 
 if __name__ == "__main__":
+    start_time = time.time()
     main()
+    end_time = time.time()
+    work_time = round(end_time - start_time, 2)
+    print(f"Work time: {work_time}")
