@@ -9,6 +9,4 @@ def url_finder(content: str) -> set[str]:
     soup = BeautifulSoup(content, "lxml")
     for url in soup.find_all('a', href=url_pattern):
         urls.add("https://en.wikipedia.org" + url.get('href'))
-    print(urls)
-    
     return urls
