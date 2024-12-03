@@ -8,7 +8,10 @@ from requests import (
     HTTPError
 )
 
-from intermediate.app.errors import CustomHTTPClientError
+from upper_intermediate.app.errors import (
+    HttpError,
+    EncodeError
+)
 
 Client = TypeVar("Client", bound=Callable[..., Response])
 
@@ -22,6 +25,6 @@ class HttpClient:
             response = self.client(url)
             return response.content.decode("utf-8")
         except UnicodeEncodeError as e:
-            raise CustomHTTPClientError from e
+            raise EncodeError from e
         except HTTPError as e:
-            raise CustomHTTPClientError from e
+            raise HttpError from e

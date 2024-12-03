@@ -13,7 +13,7 @@ from concurrent.futures import (
 from upper_intermediate.app.application import parse_wiki_page
 from upper_intermediate.app.db import Database
 from upper_intermediate.app.errors import (
-    CustomDbError
+    DbError
 )
 from upper_intermediate.app.http_cli import HttpClient
 from upper_intermediate.config import Config
@@ -56,7 +56,7 @@ def main():
                         urls={args.url},
                         max_depth=args.max_depth)
 
-    except CustomDbError:
+    except DbError:
         logger.error(f"db error")
 
     except KeyboardInterrupt:

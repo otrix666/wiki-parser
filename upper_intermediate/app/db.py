@@ -1,6 +1,6 @@
 from psycopg_pool import ConnectionPool
 
-from upper_intermediate.app.errors import CustomDbError
+from upper_intermediate.app.errors import DbError
 
 
 class Database:
@@ -18,7 +18,7 @@ class Database:
                                     )""")
                 conn.commit()
         except Exception as e:
-            raise CustomDbError("error while creating table", e)
+            raise DbError("error while creating table", e)
 
     def clear_urls(self):
         try:
@@ -28,7 +28,7 @@ class Database:
 
                 conn.commit()
         except Exception as e:
-            raise CustomDbError("error while clearing urls", e)
+            raise DbError("error while clearing urls", e)
 
     def add_urls(self, urls: set[str], depth: int) -> None:
         try:
@@ -38,7 +38,7 @@ class Database:
                     cursor.executemany("INSERT INTO urls(url, depth) VALUES (%s, %s)", insert_data)
                 conn.commit()
         except Exception as e:
-            raise CustomDbError("error while adding urls", e)
+            raise DbError("error while adding urls", e)
 
     def get_urls(self, ) -> set[str]:
         try:
@@ -47,4 +47,4 @@ class Database:
                     cursor.execute("SELECT * FROM urls")
                     return {data[1] for data in cursor.fetchall()}
         except Exception as e:
-            raise CustomDbError("error while getting urls", e)
+            raise DbError("error while getting urls", e)

@@ -1,6 +1,10 @@
-class CustomDbError(Exception):
+class DbError(Exception):
     ...
 
 
-class CustomHTTPClientError(Exception):
+class HttpError(Exception):
+    ...
+
+
+class EncodeError(Exception):
     ...
