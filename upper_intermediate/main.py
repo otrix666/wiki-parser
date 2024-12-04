@@ -2,24 +2,15 @@ import argparse
 import logging
 import time
 
-import requests
-from psycopg_pool import ConnectionPool
-
-from concurrent.futures import (
-    ThreadPoolExecutor,
-    ProcessPoolExecutor,
-)
-
-from upper_intermediate.app.application import parse_wiki_page
-from upper_intermediate.app.db import Database
+from upper_intermediate.app.application import WikiParser
+from upper_intermediate.app.dependencies import DependenciesContainer
 from upper_intermediate.app.errors import (
     DbError
 )
-from upper_intermediate.app.http_cli import HttpClient
 from upper_intermediate.config import Config
 
 
-def main():
+def setup_logging():
     logging.basicConfig(
         level=logging.INFO,
         format="%(filename)s:%(lineno)d #%(levelname)-8s [%(asctime)s] - %(name)s - %(message)s",
@@ -27,45 +18,41 @@ def main():
     )
     logger = logging.getLogger(__name__)
     logger.info("wiki-cli started")
+    return logger
 
+
+def parse_argument() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Argument for wiki parser")
+    parser.add_argument("url", type=str, help="enter wiki url for parsing")
+    parser.add_argument("max_depth", type=int, help="enter max depth for parsing")
+    return parser.parse_args()
+
+
+def main():
     config = Config()
-
-    db_url = f"postgresql://{config.pg.user}:{config.pg.password}@{config.pg.host}:{config.pg.port}/{config.pg.db}"
-    pool = ConnectionPool(db_url, max_size=10)
-
-    thread_pool = ThreadPoolExecutor(max_workers=8)
-    process_pool = ProcessPoolExecutor(max_workers=4)
-
+    logger = setup_logging()
+    dependencies = DependenciesContainer(config=config)
     try:
-        parser = argparse.ArgumentParser(description="Argument for wiki parser")
-        parser.add_argument("url", type=str, help="enter wiki url for parsing")
-        parser.add_argument("max_depth", type=int, help="enter max depth for parsing")
-        args = parser.parse_args()
+        dependencies.db.create_table()
+        dependencies.db.clear_urls()
 
-        db = Database(pool=pool)
-        db.create_table()
-        db.clear_urls()
+        args = parse_argument()
 
-        http_cli = HttpClient(client=requests.get)
+        parser = WikiParser(logger=logger,
+                            db=dependencies.db,
+                            thread_pool=dependencies.thread_pool,
+                            process_pool=dependencies.process_pool,
+                            http_client=dependencies.http_client)
+        parser.run(urls={args.url}, max_depth=args.max_depth)
 
-        parse_wiki_page(logger=logger,
-                        db=db,
-                        thread_pool=thread_pool,
-                        process_pool=process_pool,
-                        http_cli=http_cli,
-                        urls={args.url},
-                        max_depth=args.max_depth)
-
-    except DbError:
-        logger.error(f"db error")
+    except DbError as e:
+        logger.error("db error", e)
 
     except KeyboardInterrupt:
         logger.info("wiki-cli stopped")
 
     finally:
-        pool.close()
-        thread_pool.shutdown(wait=False, cancel_futures=True)
-        process_pool.shutdown(wait=False, cancel_futures=True)
+        dependencies.finalize()
 
 
 if __name__ == "__main__":
