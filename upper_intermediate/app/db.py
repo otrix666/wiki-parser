@@ -13,7 +13,7 @@ class Database:
                 with conn.cursor() as cursor:
                     cursor.execute("""CREATE TABLE IF NOT EXISTS urls(
                                     id SERIAL PRIMARY KEY,
-                                    url VARCHAR(256) UNIQUE,
+                                    url VARCHAR(512) UNIQUE,
                                     depth INTEGER
                                     )""")
                 conn.commit()

@@ -1,15 +1,15 @@
 from concurrent.futures import (
-    ThreadPoolExecutor,
     ProcessPoolExecutor,
+    ThreadPoolExecutor,
     as_completed,
 )
 from logging import Logger
 
 from upper_intermediate.app.db import Database
 from upper_intermediate.app.errors import (
-    HttpError,
     DbError,
-    EncodeError
+    EncodeError,
+    HttpError
 )
 from upper_intermediate.app.http_cli import HttpClient
 from upper_intermediate.app.utils import url_finder
@@ -30,10 +30,16 @@ class WikiParser:
         self.process_pool = process_pool
         self.http_client = http_client
 
-    def run(self, urls: set[str], max_depth: int) -> None:
+    def run(self,
+            urls: set[str],
+            max_depth: int) -> None:
+
         self.parse_wiki_page(urls, max_depth, current_depth=1)
 
-    def parse_wiki_page(self, urls: set[str], max_depth: int, current_depth: int) -> None:
+    def parse_wiki_page(self,
+                        urls: set[str],
+                        max_depth: int,
+                        current_depth: int) -> None:
         if not self.add_urls_to_db(urls, current_depth):
             return
 
@@ -45,7 +51,9 @@ class WikiParser:
 
         self.parse_wiki_page(next_urls, max_depth, current_depth + 1)
 
-    def add_urls_to_db(self, urls: set[str], current_depth: int) -> bool:
+    def add_urls_to_db(self,
+                       urls: set[str],
+                       current_depth: int) -> bool:
         future = self.thread_pool.submit(self.db.add_urls, urls, current_depth)
         try:
             future.result()
@@ -57,7 +65,11 @@ class WikiParser:
 
     def get_html_contents(self, urls: set[str]) -> set[str]:
         html_contents = set()
-        futures = [self.thread_pool.submit(self.http_client.get_url_content, url) for url in urls]
+        futures = [
+            self.thread_pool.submit(
+                self.http_client.get_url_content, url
+            ) for url in urls
+        ]
         for future in as_completed(futures):
             try:
                 html_contents.add(future.result())
