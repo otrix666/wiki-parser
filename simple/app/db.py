@@ -1,4 +1,5 @@
 import sqlite3
+
 from simple.app.errors import CustomDbError
 
 

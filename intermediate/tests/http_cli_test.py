@@ -1,9 +1,10 @@
 from unittest.mock import MagicMock
 
 import pytest
+from requests import HTTPError
+
 from intermediate.app.errors import CustomHTTPClientError
 from intermediate.app.http_cli import HttpClient
-from requests import HTTPError
 
 
 @pytest.fixture

@@ -48,9 +48,13 @@ class TestDatabase(unittest.TestCase):
 
         self.db.add_urls(urls=urls, depth=depth)
 
-        assert (self.mock_cursor.executemany.call_args,
-                call('INSERT OR REPLACE INTO urls(url, depth) VALUES (?, ?)',
-                     [('https://wiki.org1245', 1), ('https://wiki.org1234', 1), ('https://wiki.org123', 1)]))
+        assert (
+            self.mock_cursor.executemany.call_args ==
+            call(
+                "INSERT OR REPLACE INTO urls(url, depth) VALUES (?, ?)",
+                [("https://wiki.org1245", 1), ("https://wiki.org1234", 1), ("https://wiki.org123", 1)],
+            )
+        )
 
         self.mock_connection.commit.assert_called()
         self.mock_cursor.close.assert_called()

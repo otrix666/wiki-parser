@@ -1,12 +1,6 @@
-from typing import (
-    Callable,
-    TypeVar
-)
+from typing import Callable, TypeVar
 
-from requests import (
-    Response,
-    HTTPError
-)
+from requests import HTTPError, Response
 
 from intermediate.app.errors import CustomHTTPClientError
 
