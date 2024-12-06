@@ -1,7 +1,4 @@
-from dataclasses import (
-    dataclass,
-    field
-)
+from dataclasses import dataclass, field
 from os import environ as env
 
 

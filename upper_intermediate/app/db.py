@@ -40,7 +40,9 @@ class Database:
         except Exception as e:
             raise DbError("error while adding urls", e) from e
 
-    def get_urls(self, ) -> set[str]:
+    def get_urls(
+        self,
+    ) -> set[str]:
         try:
             with self.pool.connection() as conn:
                 with conn.cursor() as cursor:

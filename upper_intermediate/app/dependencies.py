@@ -1,11 +1,8 @@
 from concurrent.futures import (
-    ThreadPoolExecutor,
     ProcessPoolExecutor,
+    ThreadPoolExecutor,
 )
-from dataclasses import (
-    dataclass,
-    field
-)
+from dataclasses import dataclass, field
 
 import requests
 from psycopg_pool import ConnectionPool

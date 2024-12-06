@@ -4,9 +4,7 @@ import time
 
 from upper_intermediate.app.application import WikiParser
 from upper_intermediate.app.dependencies import DependenciesContainer
-from upper_intermediate.app.errors import (
-    DbError
-)
+from upper_intermediate.app.errors import DbError
 from upper_intermediate.config import Config
 
 
@@ -14,7 +12,7 @@ def setup_logging():
     logging.basicConfig(
         level=logging.INFO,
         format="%(filename)s:%(lineno)d #%(levelname)-8s [%(asctime)s] - %(name)s - %(message)s",
-        encoding='utf-8'
+        encoding="utf-8",
     )
     logger = logging.getLogger(__name__)
     logger.info("wiki-cli started")
@@ -38,11 +36,13 @@ def main():
 
         args = parse_argument()
 
-        parser = WikiParser(logger=logger,
-                            db=dependencies.db,
-                            thread_pool=dependencies.thread_pool,
-                            process_pool=dependencies.process_pool,
-                            http_client=dependencies.http_client)
+        parser = WikiParser(
+            logger=logger,
+            db=dependencies.db,
+            thread_pool=dependencies.thread_pool,
+            process_pool=dependencies.process_pool,
+            http_client=dependencies.http_client,
+        )
         parser.run(urls={args.url}, max_depth=args.max_depth)
 
     except DbError as e:

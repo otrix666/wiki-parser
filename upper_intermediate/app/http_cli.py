@@ -1,17 +1,8 @@
-from typing import (
-    Callable,
-    TypeVar
-)
+from typing import Callable, TypeVar
 
-from requests import (
-    Response,
-    HTTPError
-)
+from requests import HTTPError, Response
 
-from upper_intermediate.app.errors import (
-    HttpError,
-    EncodeError
-)
+from upper_intermediate.app.errors import EncodeError, HttpError
 
 Client = TypeVar("Client", bound=Callable[..., Response])
 
