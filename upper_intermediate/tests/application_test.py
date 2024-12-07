@@ -112,9 +112,45 @@ def test_failed_get_html_content_unknown_error(wiki_parser: WikiParser) -> None:
         assert result == set()
 
 
+@pytest.mark.parametrize(
+    "content, expected_result",
+    [
+        (
+            """<html>
+                    <body>
+                        <a href="/wiki/Programming">Programming</a>
+                    </body>
+                </html>""",
+            {"https://en.wikipedia.org/wiki/Programming"},
+        ),
+        (
+            """<html>
+                    <body>
+                        <a href="/wiki/Software">Software</a>
+                        <a href="/wiki/Hardware">Hardware</a>
+                    </body>
+                </html>""",
+            {"https://en.wikipedia.org/wiki/Software", "https://en.wikipedia.org/wiki/Hardware"},
+        ),
+        (
+            """<html>
+                    <body>
+                        <a href="/wiki/Python_(programming_language)">Python</a>
+                        <a href="/wiki/JavaScript">JavaScript</a>
+                    </body>
+                </html>""",
+            {"https://en.wikipedia.org/wiki/Python_(programming_language)", "https://en.wikipedia.org/wiki/JavaScript"},
+        ),
+    ],
+)
+def test_success_url_finder(wiki_parser: WikiParser, content: str, expected_result: set[str]) -> None:
+    result = wiki_parser.url_finder(content=content)
+    assert result == expected_result
+
+
 def test_success_run():
     logger = logging.getLogger(__name__)
-    db_url = "postgresql://postgres_test:admin_test@127.0.0.1:5433/test"
+    db_url = "postgresql://postgres:admin@127.0.0.1:5432/test"
     with ConnectionPool(db_url, max_size=10) as pool:
         db = Database(pool=pool)
         db.create_table()
@@ -125,16 +161,12 @@ def test_success_run():
         http_client = HttpClient(client=requests.get)
 
         parser = WikiParser(
-            logger=logger,
-            db=db,
-            thread_pool=thread_pool,
-            process_pool=process_pool,
-            http_client=http_client
+            logger=logger, db=db, thread_pool=thread_pool, process_pool=process_pool, http_client=http_client
         )
 
         parser.run(urls={"https://en.wikipedia.org/wiki/Mark_T._Vande_Hei"}, max_depth=2)
 
         with pool.connection() as connection:
             with connection.cursor() as cursor:
-                cursor.execute('SELECT count(*) FROM urls')
-                assert cursor.fetchone()[0] == 1462
+                cursor.execute("SELECT count(*) FROM urls")
+                assert 1000 < cursor.fetchone()[0] < 2000

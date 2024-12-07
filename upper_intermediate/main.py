@@ -45,8 +45,8 @@ def main():
         )
         parser.run(urls={args.url}, max_depth=args.max_depth)
 
-    except DbError as e:
-        logger.error("db error", e)
+    except DbError:
+        logger.exception("db error")
 
     except KeyboardInterrupt:
         logger.info("wiki-cli stopped")

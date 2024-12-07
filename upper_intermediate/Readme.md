@@ -23,3 +23,11 @@ export $(grep -v '^#' .env | xargs)
 # Command to run the wiki-parser
 
 ```python3 -m upper_intermediate.main <url> <max_depth>```
+
+# Create database for tests
+
+```docker exec -it <conteinter name | id> psql -U postgres -d postgres -c "create database test"```
+
+# Command to run tests
+
+```pytest upper_intermediate/tests/```

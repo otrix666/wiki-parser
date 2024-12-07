@@ -1,24 +1,27 @@
+import re
 from concurrent.futures import (
     ProcessPoolExecutor,
     ThreadPoolExecutor,
     as_completed,
 )
 from logging import Logger
+from urllib.parse import urljoin
+
+from bs4 import BeautifulSoup
 
 from upper_intermediate.app.db import Database
 from upper_intermediate.app.errors import DbError, EncodeError, HttpError
 from upper_intermediate.app.http_cli import HttpClient
-from upper_intermediate.app.utils import url_finder
 
 
 class WikiParser:
     def __init__(
-            self,
-            logger: Logger,
-            db: Database,
-            thread_pool: ThreadPoolExecutor,
-            process_pool: ProcessPoolExecutor,
-            http_client: HttpClient,
+        self,
+        logger: Logger,
+        db: Database,
+        thread_pool: ThreadPoolExecutor,
+        process_pool: ProcessPoolExecutor,
+        http_client: HttpClient,
     ) -> None:
         self._logger = logger
         self._db = db
@@ -63,7 +66,19 @@ class WikiParser:
         return html_contents
 
     def _process_html_contents(self, html_contents: set[str]) -> set[str]:
-        pages_urls = self._process_pool.map(url_finder, html_contents)
+        pages_urls = self._process_pool.map(self.url_finder, html_contents)
         all_urls = {url for urls in pages_urls for url in urls}
         new_urls = all_urls - self._db.get_urls()
         return new_urls
+
+    @staticmethod
+    def url_finder(content: str) -> set[str]:
+        urls = set()
+        url_pattern = re.compile(r"^/wiki/(?!.*\.(?:png|jpg|gif|pdf|svg|mp4)).*$")
+        soup = BeautifulSoup(content, "lxml")
+        for url in soup.find_all("a", href=url_pattern):
+            href = url.get("href", "")
+            if href:
+                full_url = urljoin("https://en.wikipedia.org", href)
+                urls.add(full_url)
+        return urls
