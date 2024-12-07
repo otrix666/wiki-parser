@@ -3,8 +3,8 @@ from unittest.mock import MagicMock
 import pytest
 from requests import HTTPError
 
-from intermediate.app.errors import CustomHTTPClientError
-from intermediate.app.http_cli import HttpClient
+from upper_intermediate.app.errors import HttpError
+from upper_intermediate.app.http_cli import HttpClient
 
 
 @pytest.fixture
@@ -29,7 +29,7 @@ def test_success_get_url_content(http_client_fixture, client_fixture):
 def test_failure_get_url_content_http_error(client_fixture, http_client_fixture):
     client_fixture.side_effect = HTTPError("HTTP Error occurred")
 
-    with pytest.raises(CustomHTTPClientError):
+    with pytest.raises(HttpError):
         http_client_fixture.get_url_content("http://example.com")
 
     client_fixture.assert_called_once_with("http://example.com")

@@ -6,13 +6,14 @@ from simple.app.errors import CustomDbError, CustomParserError
 from simple.app.parser import WikiClient
 
 
-def parse_wikipedia_page(logger: logging.Logger,
-                         db: Database,
-                         wiki_client: WikiClient,
-                         urls: set[str],
-                         max_depth: int,
-                         current_depth: int = 1
-                         ) -> None:
+def parse_wikipedia_page(
+    logger: logging.Logger,
+    db: Database,
+    wiki_client: WikiClient,
+    urls: set[str],
+    max_depth: int,
+    current_depth: int = 1,
+) -> None:
     if current_depth > max_depth:
         return
 
@@ -36,5 +37,11 @@ def parse_wikipedia_page(logger: logging.Logger,
             continue
 
     next_urls -= db.get_urls()
-    parse_wikipedia_page(logger=logger, db=db, wiki_client=wiki_client, urls=next_urls, max_depth=max_depth,
-                         current_depth=current_depth + 1)
+    parse_wikipedia_page(
+        logger=logger,
+        db=db,
+        wiki_client=wiki_client,
+        urls=next_urls,
+        max_depth=max_depth,
+        current_depth=current_depth + 1,
+    )
