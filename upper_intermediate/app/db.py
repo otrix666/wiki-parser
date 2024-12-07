@@ -18,7 +18,7 @@ class Database:
                                     )""")
                 conn.commit()
         except Exception as e:
-            raise DbError("error while creating table", e) from e
+            raise DbError("error while creating table") from e
 
     def clear_urls(self):
         try:
@@ -28,7 +28,7 @@ class Database:
 
                 conn.commit()
         except Exception as e:
-            raise DbError("error while clearing urls", e) from e
+            raise DbError("error while clearing urls") from e
 
     def add_urls(self, urls: set[str], depth: int) -> None:
         try:
@@ -38,10 +38,10 @@ class Database:
                     cursor.executemany("INSERT INTO urls(url, depth) VALUES (%s, %s)", insert_data)
                 conn.commit()
         except Exception as e:
-            raise DbError("error while adding urls", e) from e
+            raise DbError("error while adding urls") from e
 
     def get_urls(
-        self,
+            self,
     ) -> set[str]:
         try:
             with self.pool.connection() as conn:
@@ -49,4 +49,4 @@ class Database:
                     cursor.execute("SELECT * FROM urls")
                     return {data[1] for data in cursor.fetchall()}
         except Exception as e:
-            raise DbError("error while getting urls", e) from e
+            raise DbError("error while getting urls") from e
