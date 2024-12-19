@@ -13,6 +13,8 @@ from upper_intermediate.app.db import Database
 from upper_intermediate.app.errors import DbError, EncodeError, HttpError
 from upper_intermediate.app.http_cli import HttpClient
 
+URL_PATTERN = re.compile(r"^/wiki/(?!.*\.(?:png|jpg|gif|pdf|svg|mp4)).*$")
+
 
 class WikiParser:
     def __init__(
@@ -74,9 +76,8 @@ class WikiParser:
     @staticmethod
     def url_finder(content: str) -> set[str]:
         urls = set()
-        url_pattern = re.compile(r"^/wiki/(?!.*\.(?:png|jpg|gif|pdf|svg|mp4)).*$")
         soup = BeautifulSoup(content, "lxml")
-        for url in soup.find_all("a", href=url_pattern):
+        for url in soup.find_all("a", href=URL_PATTERN):
             href = url.get("href", "")
             if href:
                 full_url = urljoin("https://en.wikipedia.org", href)

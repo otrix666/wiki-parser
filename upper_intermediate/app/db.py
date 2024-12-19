@@ -41,7 +41,7 @@ class Database:
             raise DbError("error while adding urls") from e
 
     def get_urls(
-            self,
+        self,
     ) -> set[str]:
         try:
             with self.pool.connection() as conn:

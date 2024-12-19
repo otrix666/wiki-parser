@@ -50,12 +50,9 @@ def test_success_add_urls(cursor_fixture, connection_fixture, database_fixture):
     database_fixture.add_urls(urls=urls, depth=depth)
 
     connection_fixture.cursor.assert_called_once()
-    assert (
-        cursor_fixture.executemany.call_args ==
-        call(
-            "INSERT OR REPLACE INTO urls(url, depth) VALUES (%s, %2)",
-            [("https://wiki.org1245", 1), ("https://wiki.org1234", 1), ("https://wiki.org123", 1)],
-        )
+    assert cursor_fixture.executemany.call_args == call(
+        "INSERT OR REPLACE INTO urls(url, depth) VALUES (%s, %2)",
+        [("https://wiki.org1245", 1), ("https://wiki.org1234", 1), ("https://wiki.org123", 1)],
     )
 
     connection_fixture.commit.assert_called()

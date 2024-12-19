@@ -117,28 +117,28 @@ def test_failed_get_html_content_unknown_error(wiki_parser: WikiParser) -> None:
     [
         (
             """<html>
-                    <body>
-                        <a href="/wiki/Programming">Programming</a>
-                    </body>
-                </html>""",
+                        <body>
+                            <a href="/wiki/Programming">Programming</a>
+                        </body>
+                    </html>""",
             {"https://en.wikipedia.org/wiki/Programming"},
         ),
         (
             """<html>
-                    <body>
-                        <a href="/wiki/Software">Software</a>
-                        <a href="/wiki/Hardware">Hardware</a>
-                    </body>
-                </html>""",
+                        <body>
+                            <a href="/wiki/Software">Software</a>
+                            <a href="/wiki/Hardware">Hardware</a>
+                        </body>
+                    </html>""",
             {"https://en.wikipedia.org/wiki/Software", "https://en.wikipedia.org/wiki/Hardware"},
         ),
         (
             """<html>
-                    <body>
-                        <a href="/wiki/Python_(programming_language)">Python</a>
-                        <a href="/wiki/JavaScript">JavaScript</a>
-                    </body>
-                </html>""",
+                        <body>
+                            <a href="/wiki/Python_(programming_language)">Python</a>
+                            <a href="/wiki/JavaScript">JavaScript</a>
+                        </body>
+                    </html>""",
             {"https://en.wikipedia.org/wiki/Python_(programming_language)", "https://en.wikipedia.org/wiki/JavaScript"},
         ),
     ],

@@ -12,6 +12,7 @@ class WikiClient:
         self.client = client
 
     def get_url_content(self, url: str) -> str:
+        print(url)
         try:
             response = self.client(url)
             content = response.read()
