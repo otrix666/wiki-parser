@@ -1,6 +1,6 @@
-# Wikipedia Parser Evolution Project
+# Wikipedia Crawler Evolution Project
 
-A sophisticated Wikipedia parser that demonstrates the progression from simple synchronous parsing to high-performance asynchronous implementation. This project showcases different approaches to web scraping, implementing various Python technologies and concurrency patterns.
+A sophisticated Wikipedia crawler that demonstrates the progression from simple synchronous parsing to high-performance asynchronous implementation. This project showcases different approaches to web scraping, implementing various Python technologies and concurrency patterns.
 
 ## 🚀 Features
 
@@ -19,30 +19,32 @@ A sophisticated Wikipedia parser that demonstrates the progression from simple s
 | Upper-Intermediate | 71.81 | threading, multiprocessing, psycopg, redis, requests,bs4, lxml, re |
 | Advanced | 28.35 | asyncio, aiohttp, asyncpg, bs4, lxml, multiprocessing, re          |
 
+![Execution Time Comparison](Execution_Time.png)
+
 *Test case: Parsing https://en.wikipedia.org/wiki/Python_(programming_language) with depth level 3*
 
 ## 🛠️ Implementation Levels
 
-### Simple Parser
+### Simple Crawler
 - Basic implementation using standard Python libraries
 - Foundation for understanding web scraping concepts
 - Usage instructions available in `/simple` directory
 
-### Intermediate Parser
+### Intermediate Crawler
 - Integration with Redis for caching
 - PostgreSQL database integration using Psycopg
 - Enhanced HTML parsing with BeautifulSoup
 - Improved request handling with Requests library
 - Usage instructions available in `/intermediate` directory
 
-### Upper-Intermediate Parser
+### Upper-Intermediate Crawler
 - Concurrent execution using ThreadPoolExecutor
 - Parallel processing with ProcessPoolExecutor
 - Custom DependenciesContainer implementation using dataclasses
 - Improved architecture and dependency management
 - Usage instructions available in `/upper_intermediate` directory
 
-### Advanced Parser
+### Advanced Crawler
 - Full asynchronous implementation using asyncio
 - High-performance database operations with asyncpg
 - Maximum parsing efficiency and throughput
